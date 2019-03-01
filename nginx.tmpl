@@ -214,7 +214,7 @@ server {
 	listen [::]:443 ssl http2 {{ $default_server }};
 	{{ end }}
 	access_log /var/log/nginx/access.log vhost;
-    client_max_body_size 10M;
+	client_max_body_size 10M;
 
 	{{ if eq $network_tag "internal" }}
 	# Only allow traffic from internal clients
