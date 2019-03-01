@@ -56,8 +56,12 @@ map $scheme $proxy_x_forwarded_ssl {
   default off;
   https on;
 }
-
-gzip_types text/plain text/css application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+gzip on;
+gzip_vary on;
+gzip_min_length 10240;
+gzip_proxied expired no-cache no-store private auth;
+gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml;
+gzip_disable "MSIE [1-6]\.";
 
 log_format vhost '$host $remote_addr - $remote_user [$time_local] '
                  '"$request" $status $body_bytes_sent '
@@ -76,6 +80,7 @@ include /etc/nginx/proxy.conf;
 proxy_http_version 1.1;
 proxy_buffering off;
 proxy_set_header Host $http_host;
+add_header 'Access-Control-Allow-Origin' '*';
 proxy_set_header Upgrade $http_upgrade;
 proxy_set_header Connection $proxy_connection;
 proxy_set_header X-Real-IP $remote_addr;
@@ -345,6 +350,8 @@ server {
 {{ if (and (not $is_https) (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
 server {
 	server_name {{ $host }};
+	client_max_body_size 10M;
+
 	listen 443 ssl http2 {{ $default_server }};
 	{{ if $enable_ipv6 }}
 	listen [::]:443 ssl http2 {{ $default_server }};
