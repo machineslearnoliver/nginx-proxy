@@ -217,6 +217,7 @@ server {
 	{{ end }}
 	access_log /var/log/nginx/access.log vhost;
 	client_max_body_size 10M;
+	client_body_buffer_size 10M;
 	gzip on;
 	gzip_vary on;
 	gzip_min_length 1024;
