@@ -56,7 +56,7 @@ map $scheme $proxy_x_forwarded_ssl {
   default off;
   https on;
 }
-#server_tokens off;
+server_tokens off;
 gzip on;
 gzip_vary on;
 gzip_min_length 1024;
@@ -109,8 +109,8 @@ server {
 {{ if (and (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
 server {
 	server_name _; # This is just an invalid value which will never trigger on a real hostname.
-	#server_tokens off;
-	#add_header X-Frame-Options "DENY";
+	server_tokens off;
+	add_header X-Frame-Options "DENY";
 	listen 443 ssl http2;
 	{{ if $enable_ipv6 }}
 	listen [::]:443 ssl http2;
@@ -208,15 +208,14 @@ server {
 	{{ end }}
 	access_log /var/log/nginx/access.log vhost;
 	return 301 https://$host$request_uri;
-	
 }
 {{ end }}
 
 server {
 	server_name {{ $host }};
 	listen 443 ssl http2 {{ $default_server }};
-	#server_tokens off;
-	#add_header X-Frame-Options "DENY";
+	server_tokens off;
+	add_header X-Frame-Options "DENY";
 	{{ if $enable_ipv6 }}
 	listen [::]:443 ssl http2 {{ $default_server }};
 	{{ end }}
@@ -387,8 +386,8 @@ server {
 {{ if (and (not $is_https) (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
 server {
 	server_name {{ $host }};
-	#server_tokens off;
-	#add_header X-Frame-Options "DENY";
+	server_tokens off;
+	add_header X-Frame-Options "DENY";
 	listen 443 ssl http2 {{ $default_server }};
 	{{ if $enable_ipv6 }}
 	listen [::]:443 ssl http2 {{ $default_server }};
