@@ -297,9 +297,9 @@ server {
 	location / {
 
 		set $cors '';
-		#if ($http_origin ~ '^https?://(localhost|www\.see-mode\.com)') {
-		set $cors 'true';
-		#}
+		if ($http_origin ~ '^https?://(localhost|www\.see-mode\.com)') {
+			set $cors 'true';
+		}
 
 		if ($cors = 'true') {
 			add_header 'Access-Control-Allow-Origin' "$http_origin" always;
@@ -312,6 +312,7 @@ server {
 
 		if ($request_method = 'OPTIONS') {
 			# Tell client that this pre-flight info is valid for 20 days
+			add_header 'Access-Control-Allow-Origin' "$http_origin" always;
 			add_header 'Access-Control-Max-Age' 1728000;
 			add_header 'Content-Type' 'text/plain charset=UTF-8';
 			add_header 'Content-Length' 0;
