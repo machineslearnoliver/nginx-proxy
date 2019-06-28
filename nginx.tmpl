@@ -292,86 +292,27 @@ server {
 	{{ end }}
 
 	location / {
-		add_header 'Access-Control-Allow-Origin' "$http_origin";
+		
+		set $cors '';
+		if ($http_origin ~ '^https?://(localhost|www\.see-mode\.com)') {
+        	set $cors 'true';
+	}
 
-		# specifically, this example allow CORS requests from
-		#  scheme    : http or https
-		#  authority : any authority ending in "see-mode.com"
-		#  port      : nothing, or :<any_number>
-		if ($http_origin ~* (https?://.*\.see-mode\.com(:[0-9]+)?)) {
-			set $cors "true";
-			add_header 'Access-Control-Allow-Origin' "$http_origin";
+	if ($cors = 'true') {
+        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With' always;
+        # required to be able to read Authorization header in frontend
+        #add_header 'Access-Control-Expose-Headers' 'Authorization' always;
+	}
 
-		}
-
-		# Nginx doesn't support nested If statements, so we use string
-		# concatenation to create a flag for compound conditions
-
-		# OPTIONS indicates a CORS pre-flight request
 		if ($request_method = 'OPTIONS') {
-			set $cors "${cors}options";  
-		}
-
-		# non-OPTIONS indicates a normal CORS request
-		if ($request_method = 'GET') {
-			set $cors "${cors}get";  
-		}
-		if ($request_method = 'POST') {
-			set $cors "${cors}post";
-		}
-
-		# if it's a GET or POST, set the standard CORS responses header
-		if ($cors = "trueget") {
-			# Tells the browser this origin may make cross-origin requests
-			# (Here, we echo the requesting origin, which matched the whitelist.)
-			add_header 'Access-Control-Allow-Origin' "$http_origin";
-			# Tells the browser it may show the response, when XmlHttpRequest.withCredentials=true.
-			add_header 'Access-Control-Allow-Credentials' 'true';
-			# # Tell the browser which response headers the JS can see, besides the "simple response headers"
-			# add_header 'Access-Control-Expose-Headers' 'myresponseheader';
-		}
-
-		if ($cors = "truepost") {
-			# Tells the browser this origin may make cross-origin requests
-			# (Here, we echo the requesting origin, which matched the whitelist.)
-			add_header 'Access-Control-Allow-Origin' "$http_origin";
-			# Tells the browser it may show the response, when XmlHttpRequest.withCredentials=true.
-			add_header 'Access-Control-Allow-Credentials' 'true';
-			# # Tell the browser which response headers the JS can see
-			# add_header 'Access-Control-Expose-Headers' 'myresponseheader';
-		}
-
-		# if it's OPTIONS, for a CORS preflight request, then respond immediately with no response body
-		if ($cors = "trueoptions") {
-			# Tells the browser this origin may make cross-origin requests
-			# (Here, we echo the requesting origin, which matched the whitelist.)
-			add_header 'Access-Control-Allow-Origin' "$http_origin";
-			# in a preflight response, tells browser the subsequent actual request can include user credentials (e.g., cookies)
-			add_header 'Access-Control-Allow-Credentials' 'true';
-
-			#
-			# Return special preflight info
-			#
-			
-			# Tell browser to cache this pre-flight info for 20 days
-			add_header 'Access-Control-Max-Age' 1728000;
-
-			add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-
-			# The bottom line: it seems there are headers needed for the
-			# web and CORS to work, which at the moment you should
-			# hard-code into Access-Control-Allow-Headers, although
-			# official specs imply this should not be necessary.
-			# 
-			add_header 'Access-Control-Allow-Headers' 'Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since';
-
-			# build entire response to the preflight request
-			# no body in this response
-			add_header 'Content-Length' 0;
-			# (should not be necessary, but included for non-conforming browsers)
-			add_header 'Content-Type' 'text/plain charset=UTF-8';
-			# indicate successful return with no content
-			return 204;
+        # Tell client that this pre-flight info is valid for 20 days
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Content-Type' 'text/plain charset=UTF-8';
+        add_header 'Content-Length' 0;
+        return 204;
 		}
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
