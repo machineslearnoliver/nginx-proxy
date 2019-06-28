@@ -81,6 +81,7 @@ include /etc/nginx/proxy.conf;
 proxy_http_version 1.1;
 proxy_buffering off;
 proxy_set_header Host $http_host;
+#add_header 'Access-Control-Allow-Origin' '*';
 proxy_set_header Upgrade $http_upgrade;
 proxy_set_header Connection $proxy_connection;
 proxy_set_header X-Real-IP $remote_addr;
@@ -213,87 +214,6 @@ server {
 server {
 	server_name {{ $host }};
 	listen 443 ssl http2 {{ $default_server }};
-
-
-
-	# specifically, this example allow CORS requests from
-    #  scheme    : http or https
-    #  authority : any authority ending in "see-mode.com"
-    #  port      : nothing, or :<any_number>
-    if ($http_origin ~* (https?://.*\.see-mode\.com(:[0-9]+)?)) {
-        set $cors "true";
-    }
-
-    # Nginx doesn't support nested If statements, so we use string
-    # concatenation to create a flag for compound conditions
-
-    # OPTIONS indicates a CORS pre-flight request
-    if ($request_method = 'OPTIONS') {
-        set $cors "${cors}options";  
-    }
-
-    # non-OPTIONS indicates a normal CORS request
-    if ($request_method = 'GET') {
-        set $cors "${cors}get";  
-    }
-    if ($request_method = 'POST') {
-        set $cors "${cors}post";
-    }
-
-    # if it's a GET or POST, set the standard CORS responses header
-    if ($cors = "trueget") {
-        # Tells the browser this origin may make cross-origin requests
-        # (Here, we echo the requesting origin, which matched the whitelist.)
-        add_header 'Access-Control-Allow-Origin' "$http_origin";
-        # Tells the browser it may show the response, when XmlHttpRequest.withCredentials=true.
-        add_header 'Access-Control-Allow-Credentials' 'true';
-        # # Tell the browser which response headers the JS can see, besides the "simple response headers"
-        # add_header 'Access-Control-Expose-Headers' 'myresponseheader';
-    }
-
-    if ($cors = "truepost") {
-        # Tells the browser this origin may make cross-origin requests
-        # (Here, we echo the requesting origin, which matched the whitelist.)
-        add_header 'Access-Control-Allow-Origin' "$http_origin";
-        # Tells the browser it may show the response, when XmlHttpRequest.withCredentials=true.
-        add_header 'Access-Control-Allow-Credentials' 'true';
-        # # Tell the browser which response headers the JS can see
-        # add_header 'Access-Control-Expose-Headers' 'myresponseheader';
-    }
-
-    # if it's OPTIONS, for a CORS preflight request, then respond immediately with no response body
-    if ($cors = "trueoptions") {
-        # Tells the browser this origin may make cross-origin requests
-        # (Here, we echo the requesting origin, which matched the whitelist.)
-        add_header 'Access-Control-Allow-Origin' "$http_origin";
-        # in a preflight response, tells browser the subsequent actual request can include user credentials (e.g., cookies)
-        add_header 'Access-Control-Allow-Credentials' 'true';
-
-        #
-        # Return special preflight info
-        #
-        
-        # Tell browser to cache this pre-flight info for 20 days
-        add_header 'Access-Control-Max-Age' 1728000;
-
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-   
-        # The bottom line: it seems there are headers needed for the
-        # web and CORS to work, which at the moment you should
-        # hard-code into Access-Control-Allow-Headers, although
-        # official specs imply this should not be necessary.
-        # 
-        add_header 'Access-Control-Allow-Headers' 'Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since';
-
-        # build entire response to the preflight request
-        # no body in this response
-        add_header 'Content-Length' 0;
-        # (should not be necessary, but included for non-conforming browsers)
-        add_header 'Content-Type' 'text/plain charset=UTF-8';
-        # indicate successful return with no content
-        return 204;
-    }
-
 	server_tokens off;
 	add_header X-Frame-Options "DENY";
 	{{ if $enable_ipv6 }}
@@ -371,6 +291,7 @@ server {
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
 
+	location / {
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
 		uwsgi_pass {{ trim $proto }}://{{ trim $upstream_name }};
