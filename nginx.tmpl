@@ -299,6 +299,8 @@ server {
 		#  port      : nothing, or :<any_number>
 		if ($http_origin ~* (https?://.*\.see-mode\.com(:[0-9]+)?)) {
 			set $cors "true";
+			add_header 'Access-Control-Allow-Origin' "$http_origin";
+
 		}
 
 		# Nginx doesn't support nested If statements, so we use string
@@ -335,7 +337,7 @@ server {
 			# Tells the browser it may show the response, when XmlHttpRequest.withCredentials=true.
 			add_header 'Access-Control-Allow-Credentials' 'true';
 			# # Tell the browser which response headers the JS can see
-			add_header 'Access-Control-Allow-Origin' "$http_origin";
+			# add_header 'Access-Control-Expose-Headers' 'myresponseheader';
 		}
 
 		# if it's OPTIONS, for a CORS preflight request, then respond immediately with no response body
