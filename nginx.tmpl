@@ -215,8 +215,8 @@ server {
 	listen 443 ssl http2 {{ $default_server }};
 
 
-	location / {
-		# specifically, this example allow CORS requests from
+
+	# specifically, this example allow CORS requests from
     #  scheme    : http or https
     #  authority : any authority ending in "see-mode.com"
     #  port      : nothing, or :<any_number>
@@ -293,7 +293,7 @@ server {
         # indicate successful return with no content
         return 204;
     }
-	
+
 	server_tokens off;
 	add_header X-Frame-Options "DENY";
 	{{ if $enable_ipv6 }}
