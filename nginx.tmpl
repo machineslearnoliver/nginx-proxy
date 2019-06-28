@@ -292,7 +292,8 @@ server {
 	{{ end }}
 
 	location / {
-			
+		add_header 'Access-Control-Allow-Origin' "$http_origin";
+
 		# specifically, this example allow CORS requests from
 		#  scheme    : http or https
 		#  authority : any authority ending in "see-mode.com"
