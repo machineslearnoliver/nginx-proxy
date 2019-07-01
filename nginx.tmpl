@@ -295,7 +295,7 @@ server {
 	location / {
 
 		set $cors '';
-		if ($http_origin ~ '^https?:\/\/(localhost|www\.see-mode\.com)') {
+		if ($http_origin ~ '^https?:\/\/(localhost|\.see-mode\.com)') {
 			set $cors 'true';
 		}
 
