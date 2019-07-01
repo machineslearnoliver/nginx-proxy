@@ -294,10 +294,10 @@ server {
 
 	location / {
 
-		#set $cors '';
-		#if ($http_origin ~ '^https?:\/\/(localhost|www\.see-mode\.com)') {
-		set $cors 'true';
-		#}
+		set $cors '';
+			if ($http_origin ~ '^https?:\/\/(localhost|www\.see-mode\.com)') {
+			set $cors 'true';
+		}
 
 		if ($cors = 'true') {
 			add_header 'Access-Control-Allow-Origin' $http_origin;
