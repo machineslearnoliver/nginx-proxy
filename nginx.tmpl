@@ -293,11 +293,12 @@ server {
 	{{ end }}
 
 	location / {
-
+{# 
 		set $cors '';
 		if ($http_origin ~ '^https?:\/\/(localhost|\.see-mode\.com)') {
 			set $cors 'true';
-		}
+		} #}
+		{# set_header 'Access-Control-Allow-Origin' "$http_origin"; #}
 {# 
 		if ($cors = 'true') {
 			set_header 'Access-Control-Allow-Origin' "$http_origin";
@@ -316,7 +317,7 @@ server {
 			add_header 'Content-Length' 0;
 			return 204;
 		} #}
-
+{# 
 		if ($cors = 'true') {
 			add_header 'Access-Control-Allow-Origin' "$http_origin" always;
 			add_header 'Access-Control-Allow-Credentials' 'true' always;
@@ -332,7 +333,7 @@ server {
 			add_header 'Content-Type' 'text/plain charset=UTF-8';
 			add_header 'Content-Length' 0;
 			return 204;
-		}
+		} #}
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
 		uwsgi_pass {{ trim $proto }}://{{ trim $upstream_name }};
