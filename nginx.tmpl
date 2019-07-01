@@ -109,7 +109,7 @@ server {
 server {
 	server_name _; # This is just an invalid value which will never trigger on a real hostname.
 	server_tokens off;
-	add_header X-Frame-Options "DENY";
+	{# add_header X-Frame-Options "DENY"; #}
 	listen 443 ssl http2;
 	{{ if $enable_ipv6 }}
 	listen [::]:443 ssl http2;
@@ -214,7 +214,7 @@ server {
 	server_name {{ $host }};
 	listen 443 ssl http2 {{ $default_server }};
 	server_tokens off;
-	add_header X-Frame-Options "DENY";
+	{# add_header X-Frame-Options "DENY"; #}
 
 	{{ if $enable_ipv6 }}
 	listen [::]:443 ssl http2 {{ $default_server }};
@@ -412,7 +412,7 @@ server {
 server {
 	server_name {{ $host }};
 	server_tokens off;
-	add_header X-Frame-Options "DENY";
+	{# add_header X-Frame-Options "DENY"; #}
 	listen 443 ssl http2 {{ $default_server }};
 	{{ if $enable_ipv6 }}
 	listen [::]:443 ssl http2 {{ $default_server }};
