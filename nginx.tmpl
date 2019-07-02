@@ -292,8 +292,6 @@ server {
 	{{ end }}
 
 	location / {
-		add_header 'Access-Control-Allow-Origin' '*';
-
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
 		uwsgi_pass {{ trim $proto }}://{{ trim $upstream_name }};
